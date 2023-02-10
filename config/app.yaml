@@ -1,0 +1,6 @@
+mysql:
+  host: 172.17.73.120
+  prot: 33006
+  user: root
+  password: 123456
+  database: ginchat
