@@ -1,15 +1,17 @@
 package service
 
 import (
-	"ginchat/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
+// GetIndex
+// @Tags 首页
+// @Success 200 {string} ok
+// @Router /index [get]
 func GetIndex(c *gin.Context) {
-	data := models.GetUserList()
 	c.JSON(http.StatusOK, gin.H{
-		"message": data,
+		"message": "ok",
 	})
 }
