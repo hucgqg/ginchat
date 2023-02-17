@@ -21,6 +21,7 @@ const docTemplate = `{
                 "tags": [
                     "首页"
                 ],
+                "summary": "首页",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -59,6 +60,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "再次输入密码",
                         "name": "repassword",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "电话号码",
+                        "name": "phone",
                         "in": "formData",
                         "required": true
                     },

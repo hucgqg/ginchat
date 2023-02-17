@@ -8,6 +8,7 @@ paths:
           description: OK
           schema:
             type: string
+      summary: 首页
       tags:
       - 首页
   /user/createUser:
@@ -28,6 +29,11 @@ paths:
       - description: 再次输入密码
         in: formData
         name: repassword
+        required: true
+        type: string
+      - description: 电话号码
+        in: formData
+        name: phone
         required: true
         type: string
       - description: 邮箱

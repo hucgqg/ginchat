@@ -21,6 +21,7 @@ type UserBasic struct {
 	HeartbeatTime time.Time `json:"heartbeat_time"`
 	IsLogout      bool      `json:"is_logout"`
 	DeviceInfo    string    `json:"device_info"`
+	Salt          string    `json:"salt"`
 }
 
 func (table *UserBasic) TableName() string {
@@ -34,9 +35,7 @@ func GetUserList() []*UserBasic {
 }
 
 func CreateUser(user *UserBasic) *gorm.DB {
-	user.LoginTime = time.Now()
-	user.LogoutTime = time.Now()
-	user.HeartbeatTime = time.Now()
+	user.LoginTime, user.LogoutTime, user.HeartbeatTime = time.Now(), time.Now(), time.Now()
 	return utils.DB.Create(&user)
 }
 

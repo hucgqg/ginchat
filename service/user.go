@@ -1,7 +1,10 @@
 package service
 
 import (
+	"fmt"
 	"ginchat/models"
+	"ginchat/utils"
+	"math/rand"
 	"net/http"
 	"strconv"
 
@@ -31,6 +34,7 @@ func (u User) GetUserList(c *gin.Context) {
 // @Param name formData string true "用户姓名"
 // @Param password formData string true "输入密码"
 // @Param repassword formData string true "再次输入密码"
+// @Param phone formData string true "电话号码"
 // @Param email formData string true "邮箱"
 // @Success 200 {json} {"code", "message"}
 // @Router /user/createUser [post]
@@ -44,8 +48,10 @@ func (u User) CreateUser(c *gin.Context) {
 		})
 		return
 	}
+	salt := fmt.Sprintf("%06d", rand.Int31())
+	user.PassWord = utils.MakePassword(password, salt)
 	user.Name = c.PostForm("name")
-	user.PassWord = password
+	user.Phone = c.PostForm("phone")
 	user.Email = c.PostForm("email")
 	_, err := govalidator.ValidateStruct(user)
 	if err != nil {

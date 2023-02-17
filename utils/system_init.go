@@ -14,7 +14,7 @@ import (
 
 var (
 	DB  *gorm.DB
-	Err error
+	err error
 )
 
 func InitConfig() {
@@ -36,8 +36,9 @@ func InitMySQL() {
 		},
 	)
 	m := viper.GetStringMapString("mysql")
-	DB, Err = gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", m["user"], m["password"], m["host"], m["prot"], m["database"])), &gorm.Config{Logger: newLogger})
-	if Err != nil {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", m["user"], m["password"], m["host"], m["prot"], m["database"])
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: newLogger})
+	if err != nil {
 		panic("failed to connect database")
 	}
 }
