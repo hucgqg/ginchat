@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
@@ -22,7 +23,40 @@ type User struct{}
 func (u User) GetUserList(c *gin.Context) {
 	data := models.GetUserList()
 	c.JSON(http.StatusOK, gin.H{
-		"message": data,
+		"code":    0,
+		"message": "",
+		"data":    data,
+	})
+}
+
+// GetUser
+// @Tags 用户接口
+// @Summary 用户信息
+// @Accept  application/x-www-form-urlencoded
+// @Product application/json
+// @Param name formData string true "用户姓名"
+// @Param password formData string true "输入密码"
+// @Success 200 {json} {"code", "message"}
+// @Router /user/getUserInfo [post]
+func (u User) GetUser(c *gin.Context) {
+	name := c.PostForm("name")
+	password := c.PostForm("password")
+
+	findUserByName := models.FindUserByname(name)
+	validPassword := utils.ValidPassword(password, findUserByName.Salt, findUserByName.PassWord)
+	if findUserByName.ID < 1 || !validPassword {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"message": "账号密码错误",
+			"data":    "",
+		})
+		return
+	}
+	userInfo := models.FindUserBynameAndPwd(name, findUserByName.PassWord)
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "用户信息",
+		"data":    userInfo,
 	})
 }
 
@@ -40,29 +74,45 @@ func (u User) GetUserList(c *gin.Context) {
 // @Router /user/createUser [post]
 func (u User) CreateUser(c *gin.Context) {
 	user := models.UserBasic{}
-	password := c.PostForm("password")
-	repassword := c.PostForm("repassword")
-	if password != repassword {
-		c.JSON(400, gin.H{
-			"message": "两次密码输入不一致",
+	if models.FindUserByname(c.PostForm("name")).Name != "" {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"message": "用户已存在",
+			"data":    user,
 		})
 		return
 	}
-	salt := fmt.Sprintf("%06d", rand.Int31())
+	password := c.PostForm("password")
+	repassword := c.PostForm("repassword")
+	if password != repassword {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"message": "两次密码输入不一致",
+			"data":    user,
+		})
+		return
+	}
+	rand.Seed(time.Now().UnixMicro())
+	salt := fmt.Sprintf("%d", rand.Int31())
+	user.Salt = salt
 	user.PassWord = utils.MakePassword(password, salt)
 	user.Name = c.PostForm("name")
 	user.Phone = c.PostForm("phone")
 	user.Email = c.PostForm("email")
 	_, err := govalidator.ValidateStruct(user)
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
 			"message": err,
+			"data":    user,
 		})
 		return
 	}
 	models.CreateUser(&user)
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
 		"message": "创建用户成功",
+		"data":    user,
 	})
 }
 
@@ -88,14 +138,18 @@ func (u User) UpdateUser(c *gin.Context) {
 	user.Email = c.PostForm("email")
 	_, err := govalidator.ValidateStruct(user)
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
 			"message": err,
+			"data":    user,
 		})
 		return
 	}
 	models.UpdateUser(&user)
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
 		"message": "修改用户信息成功",
+		"data":    user,
 	})
 }
 
@@ -110,7 +164,9 @@ func (u User) DeleteUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Query("id"))
 	user.ID = uint(id)
 	models.DeleteUser(&user)
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
 		"message": "删除用户成功",
+		"data":    user,
 	})
 }

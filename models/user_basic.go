@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"ginchat/utils"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 type UserBasic struct {
 	gorm.Model
 	Name          string    `json:"name"`
-	PassWord      string    `json:"password"`
+	PassWord      string    `json:"-"`
 	Phone         string    `json:"phone" valid:"matches(^1[3-9]\\d{9})"`
 	Email         string    `json:"email" valid:"email"`
 	Identity      string    `json:"identity"`
@@ -21,11 +22,38 @@ type UserBasic struct {
 	HeartbeatTime time.Time `json:"heartbeat_time"`
 	IsLogout      bool      `json:"is_logout"`
 	DeviceInfo    string    `json:"device_info"`
-	Salt          string    `json:"salt"`
+	Salt          string    `json:"-"`
 }
 
-func (table *UserBasic) TableName() string {
-	return "user_basic"
+func (table *UserBasic) TableName() string { return "user_basic" }
+
+func FindUserBynameAndPwd(name, password string) UserBasic {
+	user := UserBasic{}
+	utils.DB.Where("name=? AND pass_word=?", name, password).First(&user)
+
+	// token加密
+	str := fmt.Sprintf("%d", time.Now().Nanosecond())
+	token := utils.MD5Encode(str)
+	utils.DB.Model(&user).Where("id=?", user.ID).Update("identity=?", token)
+	return user
+}
+
+func FindUserByname(name string) UserBasic {
+	user := UserBasic{}
+	utils.DB.Where("name=?", name).First(&user)
+	return user
+}
+
+func FindUserByPhone(phone string) UserBasic {
+	user := UserBasic{}
+	utils.DB.Where("phone=?", phone).First(&user)
+	return user
+}
+
+func FindUserByEmail(email string) UserBasic {
+	user := UserBasic{}
+	utils.DB.Where("phone=?", email).First(&user)
+	return user
 }
 
 func GetUserList() []*UserBasic {

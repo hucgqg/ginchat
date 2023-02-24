@@ -10,6 +10,9 @@ func main() {
 	utils.InitConfig()
 	utils.InitMySQL()
 	utils.DB.AutoMigrate(&models.UserBasic{})
+	utils.DB.AutoMigrate(&models.Contact{})
+	utils.DB.AutoMigrate(&models.GroupBasic{})
+	utils.DB.AutoMigrate(&models.Message{})
 	// user := &models.UserBasic{LoginTime: time.Now(), LogoutTime: time.Now(), HeartbeatTime: time.Now()}
 	// user.Name = "测试"
 	// // Create

@@ -65,6 +65,29 @@ paths:
       summary: 删除用户
       tags:
       - 用户接口
+  /user/getUserInfo:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - description: 用户姓名
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: 输入密码
+        in: formData
+        name: password
+        required: true
+        type: string
+      responses:
+        "200":
+          description: code", "message"}
+          schema:
+            type: json
+      summary: 用户信息
+      tags:
+      - 用户接口
   /user/getUserList:
     get:
       responses:
